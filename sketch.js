@@ -2,7 +2,7 @@ let currentTime = new Date().getTime()
 let trailArr = [];
 let presentArr = [];
 let ldm = false
-let mode = 1
+let mode = "timed"
 
 let slowMo = 0
 let boost = 0
@@ -138,14 +138,23 @@ function comboCheck() {
 	}
 }
 
-function drawPowerUpBar(x, y, col1, col2, t) {
+function handlePresents() {
+	for (let present of presentArr) {
+		push()
+		present.draw()
+		pop()
+	}
+}
+
+function drawPowerUpBar(x, y, col1, col2, t, name) {
 	push()
 	rectMode(CORNER)
 	fill(...col1)
-	square(x, y, 50, 10)
-	rect(x + 50, y + 10, 155, 30, 0, 5, 5, 0)
+	square(x, y, 60, 10)
+	rect(x + 60, y + 15, 155, 30, 0, 5, 5, 0)
 	fill(...col2)
-	rect(x + 50, y + 15, 150 * Math.max(t-currentTime, 0)/5000, 20)
+	rect(x + 60, y + 20, 150 * Math.max(t-currentTime, 0)/5000, 20)
+	image(powerUps[name], x + 30, y + 30)
 	pop()
 }
 
@@ -157,13 +166,19 @@ function handlePowerUps() {
 		rect(windowWidth/2, windowHeight/2, windowWidth, windowHeight)
 		pop()
 	}
-	drawPowerUpBar(25, 55, [3, 252, 248], [66, 135, 245], slowMo)
-	drawPowerUpBar(25, 125, [152, 219, 44], [17, 143, 44], boost)
-	drawPowerUpBar(25, 195, [217, 146, 85], [247, 116, 2], combo)
+	drawPowerUpBar(25, 55, [3, 252, 248], [66, 135, 245], slowMo, "slowMo")
+	drawPowerUpBar(25, 125, [152, 219, 44], [17, 143, 44], boost, "boost")
+	drawPowerUpBar(25, 195, [217, 146, 85], [247, 116, 2], combo, "combo")
 
 }
 
 function handleMouseText() {
+	if (specialTimer <= currentTime) {specialText = ""}
+	push()
+	textAlign(LEFT)
+	stroke("pink")
+	text(`Charm: ${charm} ${specialText}`, 25, 35)
+	pop()
 	if (currentTime <= mouseTimer) {
 		push()
 		stroke(...mouseColor)
@@ -361,23 +376,13 @@ function setup() {
 function draw() {
 	currentTime = new Date().getTime()
 	createCanvas(windowWidth, windowHeight);
-	textSize(25)
-	if (specialTimer <= currentTime) {specialText = ""}
-	push()
-	textAlign(LEFT)
-	stroke("pink")
-	text(`Charm: ${charm} ${specialText}`, 25, 35)
-	pop()
-
-	for (let present of presentArr) {
-		push()
-		present.draw()
-		pop()
-	}
-	
 	trail(mouseX, mouseY, 20);
+	textSize(25)
 
-	comboHandler()
-	handleMouseText()
-	handlePowerUps()
+	if (mode === "timed") {
+		handlePowerUps()
+		handlePresents()
+		comboHandler()
+		handleMouseText()
+	}
 }
