@@ -3,10 +3,13 @@ let presentArr = [];
 let ldm = false
 let mode = 1
 
-let slowMo = new Date().getTime() - 5000
-let combo = new Date().getTime() - 5000
-let comboUI = [new Date().getTime() - 5000]
+let slowMo = 0
+let combo = 0
+let comboUI = [0]
 let comboCounter = 0
+
+let specialText = ""
+let specialTimer = 0
 
 let charm = 0
 let honour = 0
@@ -22,14 +25,33 @@ function choice(arr) {
 }
 
 function startSlowMo() {
+	specialText = "=> Slow Motion: 50% Speed"
 	sfx["ice"].play()
 	slowMo = new Date().getTime() + 5000
 }
 
 function startCombo() {
+	specialText = "=> Combo Doughnut: +5 Combo"
 	comboCounter += 5
 	sfx["rage"].play()
 	combo = new Date().getTime() + 5000
+}
+
+function addTime() {
+	specialText = "=> More Time: +5 seconds"
+	sfx["time"].play()
+}
+
+function explosion() {
+	specialText = "=> Bomb Exploded: -1000 Charm"
+	sfx["boom"].play()
+	charm -= 1000
+}
+
+function melon() {
+	specialText = "=> Gained Melon: +500 Charm"
+	sfx["squelch"].play()
+	charm += 500
 }
 
 let yVelo = -50
@@ -40,7 +62,7 @@ function randomPresent() {
 	let xVelo = Math.floor(Math.random() * 10) * (xPos < windowWidth/2 && -1 || 1)
 	let yVelo = -veloArr.indexOf(choice(veloArr.filter(v => v < windowHeight && v > windowHeight*0.6)))
 	let rot = Math.floor(Math.random() * 10) * choice([1, -1])
-	let skin = choice(Object.keys(presents)) 
+	let skin = choice([...Object.keys(presents), ...Object.keys(powerUps)]) 
 	presentArr.push(new Present(xPos, yPos, xVelo, yVelo, rot, skin))
 }
 
@@ -76,7 +98,6 @@ function comboHandler() {
 		}
 		if (comboUI[1] >= 3) {
 			push()
-			textSize(25)
 			stroke(...comboColor)
 			text(comboUI[1] + comboText, mouseX, mouseY)
 			pop()
@@ -89,8 +110,13 @@ function comboCheck() {
 		comboCounter++
 		combo = new Date().getTime() + 500
 	} else {
-		if (comboCounter >= 5) {sfx["break"].play()}
-		comboUI = [new Date().getTime() + 750, comboCounter]
+		if (comboCounter >= 3) {
+			sfx["break"].play()
+			charm += comboCounter * 100
+			specialText = `=> Combo: +${comboCounter*100} Charm`
+			specialTimer = new Date().getTime() + 1500
+		}
+		comboUI = [new Date().getTime() + 1500, comboCounter]
 		combo = Math.max(new Date().getTime() + 500, combo)
 		comboCounter = 1
 	}
@@ -171,14 +197,17 @@ class Present {
 			charm += 100
 			this.alive = false
 			if (this.isPowerUp) {
+				specialTimer = new Date().getTime() + 1500
 				switch (this.skin) {
 					case "slowMo": startSlowMo(); break;
 					case "combo": startCombo(); break;
+					case "duration": addTime(); break;
+					case "bomb": explosion(); break;
+					case "melon": melon(); break;
 				}
 			} else {
-				sfx["rip"].play()
+				sfx[choice(["rip", "rip1", "rip2"])].play()
 			}
-
 			comboCheck()
 		} else if (this.y >= windowHeight + 50) {
 			this.alive = false
@@ -205,7 +234,6 @@ class Present {
 function keyPressed() {
 	switch (key) {
 		case "l": ldm = !ldm; break;
-		case "m": startSlowMo(); break;
 	}
 }
 
@@ -253,9 +281,14 @@ function preload() {
 	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
+		"rip1": loadSound("SFX/rip1.mp3"),
+		"rip2": loadSound("SFX/rip2.mp3"),
 		"ice": loadSound("SFX/ice.mp3"),
 		"break": loadSound("SFX/break.mp3"),
-		"rage": loadSound("SFX/rage.mp3")
+		"rage": loadSound("SFX/rage.mp3"),
+		"time": loadSound("SFX/time.mp3"),
+		"boom": loadSound("SFX/boom.mp3"),
+		"squelch": loadSound("SFX/squelch.mp3")
 	}
 	songs = {
 		"xmas": loadSound("Songs/It's Christmas!.mp3")
@@ -276,7 +309,14 @@ function setup() {
 
 function draw() {
 	createCanvas(windowWidth, windowHeight);
-	
+	textSize(25)
+	if (specialTimer <= new Date().getTime()) {specialText = ""}
+	push()
+	textAlign(LEFT)
+	stroke("pink")
+	text(`Charm: ${charm} ${specialText}`, 25, 35)
+	pop()
+
 	for (let present of presentArr) {
 		push()
 		present.draw()
