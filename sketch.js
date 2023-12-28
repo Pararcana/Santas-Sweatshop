@@ -11,6 +11,10 @@ let comboCounter = 0
 let charm = 0
 let honour = 0
 let presentId = 0
+let veloArr = [0]
+for (let i = 0; i < 1000; i++) {
+	veloArr.push(veloArr[veloArr.length - 1] + 1.25 * veloArr.length + Math.floor(i / 3) * 0.25)
+}
 
 function choice(arr) {
 	let index = Math.floor(Math.random() * arr.length);
@@ -26,6 +30,18 @@ function startCombo() {
 	comboCounter += 5
 	sfx["rage"].play()
 	combo = new Date().getTime() + 5000
+}
+
+let yVelo = -50
+
+function randomPresent() {
+	let xPos = Math.floor(Math.random() * windowWidth)
+	let yPos = windowHeight + 25
+	let xVelo = Math.floor(Math.random() * 10) * (xPos < windowWidth/2 && -1 || 1)
+	let yVelo = -veloArr.indexOf(choice(veloArr.filter(v => v < windowHeight && v > windowHeight*0.6)))
+	let rot = Math.floor(Math.random() * 10) * choice([1, -1])
+	let skin = choice(Object.keys(presents)) 
+	presentArr.push(new Present(xPos, yPos, xVelo, yVelo, rot, skin))
 }
 
 function trail(x, y, size) {
@@ -181,7 +197,7 @@ class Present {
 			}
 		} else {
 			presentArr = presentArr.filter(v => v.Id !== this.Id)
-			presentArr.push(new Present(250, windowHeight + 25, -10, -27, 5, "purple2"))
+			randomPresent()
 		}
 	}
 }
@@ -247,7 +263,7 @@ function preload() {
 }
 
 function setup() {
-	presentArr.push(new Present(250, windowHeight + 25, -10, -27, 10, "purple1"))
+	randomPresent()
 	trailArr.push(new Snowflake())
 	background(100);
 	textFont('Courier New')
@@ -255,7 +271,7 @@ function setup() {
 	rectMode(CENTER)
 	imageMode(CENTER)
 	textAlign(CENTER)
-	songs["xmas"].loop()
+	// songs["xmas"].loop()
 }
 
 function draw() {
