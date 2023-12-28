@@ -1,15 +1,21 @@
+let currentTime = new Date().getTime()
 let trailArr = [];
 let presentArr = [];
 let ldm = false
 let mode = 1
 
 let slowMo = 0
+let boost = 0
 let combo = 0
 let comboUI = [0]
 let comboCounter = 0
+let presentValue = 100
 
 let specialText = ""
 let specialTimer = 0
+let mouseText = ""
+let mouseTimer = 0
+let mouseColor = [0, 0, 0]
 
 let charm = 0
 let honour = 0
@@ -26,32 +32,43 @@ function choice(arr) {
 
 function startSlowMo() {
 	specialText = "=> Slow Motion: 50% Speed"
+	mouseText = "50% Speed"
+	mouseColor = [66, 135, 245]
 	sfx["ice"].play()
-	slowMo = new Date().getTime() + 5000
+	slowMo = currentTime + 5000
 }
 
 function startCombo() {
 	specialText = "=> Combo Doughnut: +5 Combo"
+	mouseText = "+5 Combo"
+	mouseColor = [245, 161, 66]
 	comboCounter += 5
 	sfx["rage"].play()
-	combo = new Date().getTime() + 5000
+	combo = currentTime + 5000
 }
 
 function addTime() {
 	specialText = "=> More Time: +5 seconds"
+	mouseText = "+5 Seconds"
+	mouseColor = [200, 200, 200]
 	sfx["time"].play()
 }
 
 function explosion() {
 	specialText = "=> Bomb Exploded: -1000 Charm"
+	mouseText = "-1000 Charm"
+	mouseColor = [255, 0, 0]
 	sfx["boom"].play()
 	charm -= 1000
 }
 
-function melon() {
-	specialText = "=> Gained Melon: +500 Charm"
+function startBoost() {
+	specialText = "=> Gained Melon: 2.5x Charm per Present"
+	mouseText = "2.5x Charm"
+	mouseColor = [133, 109, 16]
 	sfx["squelch"].play()
-	charm += 500
+	presentValue = 250
+	boost = currentTime + 5000
 }
 
 let yVelo = -50
@@ -77,7 +94,7 @@ function trail(x, y, size) {
 }
 
 function comboHandler() {
-	if (new Date().getTime() <= comboUI[0]) {
+	if (currentTime <= comboUI[0]) {
 		let comboText = ""
 		let comboColor = []
 		if (comboUI[1] >= 50) {
@@ -97,28 +114,61 @@ function comboHandler() {
 			comboColor = [245, 173, 5]
 		}
 		if (comboUI[1] >= 3) {
-			push()
-			stroke(...comboColor)
-			text(comboUI[1] + comboText, mouseX, mouseY)
-			pop()
+			mouseTimer = currentTime + 1000
+			mouseText = comboUI[1] + comboText
+			mouseColor = [...comboColor]
 		}
 	}
 }
 
 function comboCheck() {
-	if (new Date().getTime() <= combo) {
+	if (currentTime <= combo) {
 		comboCounter++
-		combo = new Date().getTime() + 500
+		combo = Math.max(currentTime + 500, combo)
 	} else {
 		if (comboCounter >= 3) {
 			sfx["break"].play()
 			charm += comboCounter * 100
 			specialText = `=> Combo: +${comboCounter*100} Charm`
-			specialTimer = new Date().getTime() + 1500
+			specialTimer = currentTime + 1500
 		}
-		comboUI = [new Date().getTime() + 1500, comboCounter]
-		combo = Math.max(new Date().getTime() + 500, combo)
+		comboUI = [currentTime + 1500, comboCounter]
+		combo = currentTime + 500
 		comboCounter = 1
+	}
+}
+
+function drawPowerUpBar(x, y, col1, col2, t) {
+	push()
+	rectMode(CORNER)
+	fill(...col1)
+	square(x, y, 50, 10)
+	rect(x + 50, y + 10, 155, 30, 0, 5, 5, 0)
+	fill(...col2)
+	rect(x + 50, y + 15, 150 * Math.max(t-currentTime, 0)/5000, 20)
+	pop()
+}
+
+function handlePowerUps() {
+	if (boost <= currentTime) {presentValue = 100}
+	if (currentTime <= slowMo) {
+		push()
+		fill(3, 252, 248, 50)
+		rect(windowWidth/2, windowHeight/2, windowWidth, windowHeight)
+		pop()
+	}
+	drawPowerUpBar(25, 55, [3, 252, 248], [66, 135, 245], slowMo)
+	drawPowerUpBar(25, 125, [152, 219, 44], [17, 143, 44], boost)
+	drawPowerUpBar(25, 195, [217, 146, 85], [247, 116, 2], combo)
+
+}
+
+function handleMouseText() {
+	if (currentTime <= mouseTimer) {
+		push()
+		stroke(...mouseColor)
+		text(mouseText, mouseX, mouseY)
+		pop()
 	}
 }
 
@@ -181,7 +231,7 @@ class Present {
 	}
 	
 	draw() {
-		if (new Date().getTime() <= slowMo) {
+		if (currentTime <= slowMo) {
 			this.x -= this.velocityX / 2
 			this.y += this.velocityY / 2
 			this.velocityY += this.gravity / 2
@@ -194,16 +244,17 @@ class Present {
 		}
 		
 		if (slicingCollision(this.x, this.y)) {
-			charm += 100
+			charm += presentValue
 			this.alive = false
 			if (this.isPowerUp) {
-				specialTimer = new Date().getTime() + 1500
+				specialTimer = currentTime + 1500
+				mouseTimer = currentTime + 1000
 				switch (this.skin) {
 					case "slowMo": startSlowMo(); break;
 					case "combo": startCombo(); break;
 					case "duration": addTime(); break;
 					case "bomb": explosion(); break;
-					case "melon": melon(); break;
+					case "boost": startBoost(); break;
 				}
 			} else {
 				sfx[choice(["rip", "rip1", "rip2"])].play()
@@ -276,7 +327,7 @@ function preload() {
 		"slowMo": loadImage("PowerUps/iceCream.png"),
 		"combo": loadImage("PowerUps/doughnut.png"),
 		"duration": loadImage("PowerUps/clock.png"),
-		"melon": loadImage("PowerUps/melon.png"),
+		"boost": loadImage("PowerUps/melon.png"),
 		"bomb": loadImage("PowerUps/bomb.png")
 	}
 	sfx = {
@@ -308,9 +359,10 @@ function setup() {
 }
 
 function draw() {
+	currentTime = new Date().getTime()
 	createCanvas(windowWidth, windowHeight);
 	textSize(25)
-	if (specialTimer <= new Date().getTime()) {specialText = ""}
+	if (specialTimer <= currentTime) {specialText = ""}
 	push()
 	textAlign(LEFT)
 	stroke("pink")
@@ -326,10 +378,6 @@ function draw() {
 	trail(mouseX, mouseY, 20);
 
 	comboHandler()
-	if (new Date().getTime() <= slowMo) {
-		push()
-		fill(3, 252, 248, 50)
-		rect(windowWidth/2, windowHeight/2, windowWidth, windowHeight)
-		pop()
-	}
+	handleMouseText()
+	handlePowerUps()
 }
