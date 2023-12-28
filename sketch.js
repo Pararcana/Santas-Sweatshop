@@ -24,6 +24,7 @@ function startSlowMo() {
 
 function startCombo() {
 	comboCounter += 5
+	sfx["rage"].play()
 	combo = new Date().getTime() + 5000
 }
 
@@ -49,7 +50,7 @@ function comboHandler() {
 			comboColor = [168, 66, 50]
 		} else if (comboUI[1] >= 10) {
 			comboText = ": Insane Combo!"
-			comboColor = [168, 104, 50]
+			comboColor = [255, 77, 0]
 		} else if (comboUI[1] >= 5) {
 			comboText = ": Nice Combo!"
 			comboColor = [245, 126, 7]
@@ -57,13 +58,25 @@ function comboHandler() {
 			comboText = ": Combo!"
 			comboColor = [245, 173, 5]
 		}
-		if (comboUI[1] > 1) {
+		if (comboUI[1] >= 3) {
 			push()
 			textSize(25)
 			stroke(...comboColor)
 			text(comboUI[1] + comboText, mouseX, mouseY)
 			pop()
 		}
+	}
+}
+
+function comboCheck() {
+	if (new Date().getTime() <= combo) {
+		comboCounter++
+		combo = new Date().getTime() + 500
+	} else {
+		if (comboCounter >= 5) {sfx["break"].play()}
+		comboUI = [new Date().getTime() + 750, comboCounter]
+		combo = Math.max(new Date().getTime() + 500, combo)
+		comboCounter = 1
 	}
 }
 
@@ -150,14 +163,7 @@ class Present {
 				sfx["rip"].play()
 			}
 
-			if (new Date().getTime() <= combo) {
-				comboCounter++
-				combo = new Date().getTime() + 500
-			} else {
-				comboUI = [new Date().getTime() + 750, comboCounter]
-				comboCounter = 1
-				combo = Math.max(new Date().getTime() + 500, combo)
-			}
+			comboCheck()
 		} else if (this.y >= windowHeight + 50) {
 			this.alive = false
 		}
@@ -175,7 +181,7 @@ class Present {
 			}
 		} else {
 			presentArr = presentArr.filter(v => v.Id !== this.Id)
-			presentArr.push(new Present(250, windowHeight + 25, -10, -27, 5, "grey2"))
+			presentArr.push(new Present(250, windowHeight + 25, -10, -27, 5, "purple2"))
 		}
 	}
 }
@@ -224,15 +230,20 @@ function preload() {
 	}
 	powerUps = {
 		"slowMo": loadImage("PowerUps/iceCream.png"),
-		"combo": loadImage("PowerUps/doughnut.png")
+		"combo": loadImage("PowerUps/doughnut.png"),
+		"duration": loadImage("PowerUps/clock.png"),
+		"melon": loadImage("PowerUps/melon.png"),
+		"bomb": loadImage("PowerUps/bomb.png")
 	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
-		"ice": loadSound("SFX/ice.mp3")
+		"ice": loadSound("SFX/ice.mp3"),
+		"break": loadSound("SFX/break.mp3"),
+		"rage": loadSound("SFX/rage.mp3")
 	}
-	// songs = {
-	// 	"xmas": loadSound("Songs/It's Christmas!.mp3")
-	// }
+	songs = {
+		"xmas": loadSound("Songs/It's Christmas!.mp3")
+	}
 }
 
 function setup() {
@@ -244,14 +255,11 @@ function setup() {
 	rectMode(CENTER)
 	imageMode(CENTER)
 	textAlign(CENTER)
-	//songs["xmas"].loop()
+	songs["xmas"].loop()
 }
 
 function draw() {
-	let currentTime = new Date().getTime()
 	createCanvas(windowWidth, windowHeight);
-	text(comboCounter, 50, 50)
-
 	
 	for (let present of presentArr) {
 		push()
@@ -262,7 +270,7 @@ function draw() {
 	trail(mouseX, mouseY, 20);
 
 	comboHandler()
-	if (currentTime <= slowMo) {
+	if (new Date().getTime() <= slowMo) {
 		push()
 		fill(3, 252, 248, 50)
 		rect(windowWidth/2, windowHeight/2, windowWidth, windowHeight)
