@@ -104,13 +104,8 @@ function setup() {
 	imageMode(CENTER)
 	textAlign(CENTER)
 
-	//initiateMenu()
-	resetSurvival()
-	//resetScore()
-	//resetTimed()
+	initiateMenu()
 
-	//resetZen()
-	//resetChaos()
 	//songs["xmas"].loop()
 }
 
@@ -449,7 +444,7 @@ function resetZen() {
 
 function zenMode() {
 	if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
-	rect(windowWidth - 75, 35, 130, 50)
+	image(buttons["back"], windowWidth - 75, 35)
 	handlePowerUps()
 	handlePresents()
 	comboHandler()
@@ -472,7 +467,7 @@ function resetChaos() {
 
 function chaosMode() {
 	if (!Math.floor(Math.random() * 100)) {randomPresent(true)}
-	rect(windowWidth - 75, 35, 130, 50)
+	image(buttons["back"], windowWidth - 75, 35)
 	handlePowerUps()
 	handlePresents()
 	comboHandler()
