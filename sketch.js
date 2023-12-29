@@ -330,7 +330,7 @@ function scoreMode() {
 }
 
 function resetSurvival() {
-	presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb"]
+	presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb", "bomb", "bomb"]
 	lives = 3
 	mode = "survival"
 	menu = "game"
