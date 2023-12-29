@@ -291,6 +291,47 @@ function modesMenu() {
 	rect(windowWidth/2, windowHeight/2 + 100, 400, 60)
 	rect(windowWidth/2, windowHeight/2 + 200, 400, 60)
 	handlePresents()
+	push()
+	textAlign(LEFT)
+	rectMode(CORNER)
+	fill(185, 229, 237)
+	if (mouseHalfBounds(-200, 200, -230, -170)) {
+		rect(mouseX, mouseY, 200, 100, 10)
+		textSize(17)
+		let txt = "Zen; a stress-free gamemode with no bombs or time constraints."
+		stroke("navy")
+		fill("black")
+		text(txt, mouseX + 7, mouseY + 7, 200, 100)
+	} else if (mouseHalfBounds(-200, 200, -130, -70)) {
+		rect(mouseX, mouseY, 200, 100, 10)
+		textSize(16)
+		let txt = "Blitz; a sprint to aquire 25,000 charm in the fastest time possible."
+		stroke("navy")
+		fill("black")
+		text(txt, mouseX + 7, mouseY + 10, 200, 100)
+	} else if (mouseHalfBounds(-200, 200, -30, 30)) {
+		rect(mouseX, mouseY, 200, 100, 10)
+		textSize(15.5)
+		let txt = "Minute Madness:     One minute.      Maximum score.    What could go wrong?"
+		stroke("navy")
+		fill("black")
+		text(txt, mouseX + 7, mouseY + 12, 200, 100)
+	} else if (mouseHalfBounds(-200, 200, 70, 130)) {
+		rect(mouseX, mouseY, 200, 100, 10)
+		textSize(16)
+		let txt = "Survival; bombs kill and spawn more frequently. Try not to die!"
+		stroke("navy")
+		fill("black")
+		text(txt, mouseX + 7, mouseY + 12, 200, 100)
+	} else if (mouseHalfBounds(-200, 200, 170, 230)) {
+		rect(mouseX, mouseY, 200, 100, 10)
+		textSize(15)
+		let txt = "Chaos; 'Oh, that's not too bad, where's the chaos?... WHAT THE FU-' ['L' -> LDM]"
+		stroke("navy")
+		fill("black")
+		text(txt, mouseX + 7, mouseY + 12, 200, 100)
+	}
+	pop()
 }
 
 function resetTimed() {
