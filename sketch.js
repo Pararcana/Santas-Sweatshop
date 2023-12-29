@@ -659,7 +659,11 @@ function handleMouseText() {
 	push()
 	textAlign(LEFT)
 	stroke("pink")
-	text(`Charm: ${charm} ${specialText}`, 25, 35)
+	if (mode === "score") {
+		text(`Charm: ${charm}/25000 ${specialText}`, 25, 35)
+	} else {
+		text(`Charm: ${charm} ${specialText}`, 25, 35)
+	}
 	pop()
 	if (currentTime <= mouseTimer) {
 		push()
