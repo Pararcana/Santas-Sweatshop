@@ -73,6 +73,12 @@ function preload() {
 		"boost": loadImage("PowerUps/melon.png"),
 		"bomb": loadImage("PowerUps/bomb.png")
 	}
+	buttons = {
+		"back": loadImage("Buttons/back.png"),
+		"again": loadImage("Buttons/again.png"),
+		"menu": loadImage("Buttons/menu.png"),
+		"logo": loadImage("Buttons/logo.png")
+	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
 		"rip1": loadSound("SFX/rip1.mp3"),
@@ -90,7 +96,6 @@ function preload() {
 }
 
 function setup() {
-	randomPresent()
 	trailArr.push(new Snowflake())
 	background(100);
 	textFont("Courier New")
@@ -98,10 +103,13 @@ function setup() {
 	rectMode(CENTER)
 	imageMode(CENTER)
 	textAlign(CENTER)
+
+	//initiateMenu()
 	resetSurvival()
 	//resetScore()
-	//resetZen()
 	//resetTimed()
+
+	//resetZen()
 	//resetChaos()
 	//songs["xmas"].loop()
 }
@@ -234,6 +242,27 @@ class Present {
 	}
 }
 
+function initiateMenu() {
+	mode = "main"
+	menu = "main"
+	presentArr = []
+	presentList = [...Object.keys(presents)]
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	randomPresent(true)
+	randomPresent(true)
+	randomPresent(true)
+}
+
+function mainMenu() {
+	image(buttons["logo"], windowWidth/2, windowHeight/2 - 150)
+	handlePresents()
+}
+
 function resetTimed() {
 	mode = "timed"
 	menu = "game"
@@ -261,7 +290,7 @@ function handleTimer() {
 function timedMode() {
 	if (currentTime <= timer) {
 		if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
-		rect(windowWidth - 75, 35, 130, 50)
+		image(buttons["back"], windowWidth - 75, 35)
 		handleTimer()
 		handlePowerUps()
 		handlePresents()
@@ -316,7 +345,7 @@ function handleStopwatch() {
 function scoreMode() {
 	if (charm < 25000) {
 		if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
-		rect(windowWidth - 75, 35, 130, 50)
+		image(buttons["back"], windowWidth - 75, 35)
 		handleStopwatch()
 		handlePowerUps()
 		handlePresents()
@@ -357,7 +386,7 @@ function handleLives() {
 function survivalMode() {
 	if (lives !== 0) {
 		if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
-		rect(windowWidth - 75, 35, 130, 50)
+		image(buttons["back"], windowWidth - 75, 35)
 		handleLives()
 		handlePowerUps()
 		handlePresents()
@@ -576,8 +605,8 @@ function handleGOverUI(txt, col) {
 	stroke(col)
 	text(txt, windowWidth/2, windowHeight/2 - 75)
 	pop()
-	rect(windowWidth/2, windowHeight/2, 250, 50, 10)
-	rect(windowWidth/2, windowHeight/2 + 75, 250, 50, 10)
+	image(buttons["again"], windowWidth/2, windowHeight/2)
+	image(buttons["menu"], windowWidth/2, windowHeight/2 + 75)
 }
 
 function keyPressed() {
@@ -589,7 +618,7 @@ function mousePressed() {
 	switch (menu) {
 		case "game":
 			if (mouseFullBounds(-140, -10, 10, 60)) {
-				menu = "main"; mode = "main"
+				initiateMenu()
 			}
 			break;
 		case "gOver":
@@ -599,7 +628,7 @@ function mousePressed() {
 					case "score": resetScore(); break;
 					case "survival": resetSurvival(); break;
 				}
-			} else if (mouseHalfBounds(-125, 125, 75, 100)) {menu = "main"; mode = "main"}
+			} else if (mouseHalfBounds(-125, 125, 75, 100)) {initiateMenu()}
 			break;
 	}
 }
@@ -615,6 +644,7 @@ function draw() {
 		case "chaos": chaosMode(); break;
 		case "score": scoreMode(); break;
 		case "survival": survivalMode(); break;
+		case "main": mainMenu(); break;
 	}
 	trail(mouseX, mouseY, 20);
 }
