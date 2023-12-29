@@ -682,7 +682,7 @@ function handleGOverUI(txt, col) {
 
 function keyPressed() {
 	if (key === "l") {ldm = !ldm}
-	else if (keyCode === ESCAPE && menu === "game") {initiateMenu()}
+	else if (keyCode === ESCAPE && ["game", "modes"].includes(menu)) {initiateMenu()}
 }
 
 function mousePressed() {
