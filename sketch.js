@@ -111,7 +111,6 @@ function setup() {
 	textAlign(CENTER)
 
 	initiateMenu()
-
 	//songs["xmas"].loop()
 }
 
@@ -692,7 +691,8 @@ function handleGOverUI(txt, col) {
 
 function keyPressed() {
 	if (key === "l") {ldm = !ldm}
-	else if (keyCode === ESCAPE && ["game", "modes"].includes(menu)) {initiateMenu()}
+	else if (keyCode === ESCAPE && menu === "game") {initiateModes()}
+	else if (keyCode === ESCAPE && menu === "modes") {initiateMenu()}
 }
 
 function mousePressed() {
@@ -710,7 +710,7 @@ function mousePressed() {
 			else if (mouseHalfBounds(-200, 200, 170, 230)) {resetChaos()}
 			break;
 		case "game":
-			if (mouseFullBounds(-140, -10, 10, 60)) {initiateMenu()}
+			if (mouseFullBounds(-140, -10, 10, 60)) {initiateModes()}
 			break;
 		case "gOver":
 			if (mouseHalfBounds(-125, 125, -25, 25)) {
