@@ -21,6 +21,7 @@ let mouseColor = [0, 0, 0]
 let timer = 0
 let stopwatch = 0
 let stopwatchArr = []
+let lives = 0
 
 let charm = 0
 let honour = 0
@@ -97,7 +98,8 @@ function setup() {
 	rectMode(CENTER)
 	imageMode(CENTER)
 	textAlign(CENTER)
-	resetScore()
+	resetSurvival()
+	//resetScore()
 	//resetZen()
 	//resetTimed()
 	//resetChaos()
@@ -327,6 +329,46 @@ function scoreMode() {
 	}
 }
 
+function resetSurvival() {
+	presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb"]
+	lives = 3
+	mode = "survival"
+	menu = "game"
+	presentArr = []
+	stopwatchArr = []
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	randomPresent(true)
+}
+
+function handleLives() {
+	push()
+	textSize(50)
+	strokeWeight(3)
+	stroke("red")
+	text(`Lives: ${lives}`, windowWidth/2, 100)
+	pop()
+}
+
+function survivalMode() {
+	if (lives !== 0) {
+		if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
+		rect(windowWidth - 75, 35, 130, 50)
+		handleLives()
+		handlePowerUps()
+		handlePresents()
+		comboHandler()
+		handleMouseText()
+	} else {
+		menu = "gOver"
+		handleGOverUI(`Charm: ${charm}`, "pink")
+	}
+}
+
 function resetZen() {
 	presentList = [...Object.keys(presents), "slowMo", "combo", "boost"]
 	mode = "zen"
@@ -436,11 +478,17 @@ function startSlowMo() {
 }
 
 function explosion() {
-	specialText = "=> Bomb Exploded: -2500 Charm"
-	mouseText = "-2500 Charm"
+	if (mode === "survival") {
+		lives--
+		specialText = "=> Bomb Exploded: -1 Life"
+		mouseText = "-1 Life"
+	} else {
+		charm -= 2500
+		specialText = "=> Bomb Exploded: -2500 Charm"
+		mouseText = "-2500 Charm"
+	}
 	mouseColor = [255, 0, 0]
 	sfx["boom"].play()
-	charm -= 2500
 }
 
 function startBoost() {
@@ -549,7 +597,7 @@ function mousePressed() {
 				switch (mode) {
 					case "timed": resetTimed(); break;
 					case "score": resetScore(); break;
-					case "survival": break;
+					case "survival": resetSurvival(); break;
 				}
 			} else if (mouseHalfBounds(-125, 125, 75, 100)) {menu = "main"; mode = "main"}
 			break;
@@ -566,7 +614,7 @@ function draw() {
 		case "zen" : zenMode(); break;
 		case "chaos": chaosMode(); break;
 		case "score": scoreMode(); break;
-		case "survival": break;
+		case "survival": survivalMode(); break;
 	}
 	trail(mouseX, mouseY, 20);
 }
