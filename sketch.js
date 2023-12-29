@@ -2,8 +2,8 @@ let currentTime = new Date().getTime()
 let trailArr = [];
 let presentArr = [];
 let ldm = false
-let mode = "timed"
-let menu = "game"
+let mode = "main"
+let menu = "main"
 
 let slowMo = 0
 let boost = 0
@@ -11,6 +11,7 @@ let combo = 0
 let comboUI = [0]
 let comboCounter = 0
 let presentValue = 100
+let presentList = []
 
 let specialText = ""
 let specialTimer = 0
@@ -18,6 +19,8 @@ let mouseText = ""
 let mouseTimer = 0
 let mouseColor = [0, 0, 0]
 let timer = 0
+let stopwatch = 0
+let stopwatchArr = []
 
 let charm = 0
 let honour = 0
@@ -94,7 +97,10 @@ function setup() {
 	rectMode(CENTER)
 	imageMode(CENTER)
 	textAlign(CENTER)
-	resetTimed()
+	resetScore()
+	//resetZen()
+	//resetTimed()
+	//resetChaos()
 	//songs["xmas"].loop()
 }
 
@@ -103,9 +109,15 @@ function choice(arr) {
 	return arr[index];
 }
 
-function mouseBounds(xLB, xUB, yLB, yUB) {
+function mouseHalfBounds(xLB, xUB, yLB, yUB) {
 	let xBounds = windowWidth/2 + xLB <= mouseX && mouseX <= windowWidth/2 + xUB
 	let yBounds = windowHeight/2 + yLB <= mouseY && mouseY <= windowHeight/2 + yUB
+	return xBounds && yBounds
+}
+
+function mouseFullBounds(xLB, xUB, yLB, yUB) {
+	let xBounds = windowWidth + xLB <= mouseX && mouseX <= windowWidth + xUB
+	let yBounds = yLB <= mouseY && mouseY <= yUB
 	return xBounds && yBounds
 }
 
@@ -224,6 +236,7 @@ function resetTimed() {
 	mode = "timed"
 	menu = "game"
 	presentArr = []
+	presentList = [...Object.keys(presents), ...Object.keys(powerUps)]
 	timer = new Date().getTime() + 60000
 	charm = 0
 	comboCounter = 0
@@ -246,7 +259,7 @@ function handleTimer() {
 function timedMode() {
 	if (currentTime <= timer) {
 		if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
-		rect(windowWidth - 75, 35, 125, 50)
+		rect(windowWidth - 75, 35, 130, 50)
 		handleTimer()
 		handlePowerUps()
 		handlePresents()
@@ -254,16 +267,110 @@ function timedMode() {
 		handleMouseText()
 	} else {
 		menu = "gOver"
-		handleGOverUI()
+		handleGOverUI(`Charm: ${charm}`, "pink")
 	}
 }
 
 function addTime() {
-	specialText = "=> More Time: +3 seconds"
-	mouseText = "+3 Seconds"
+	if (mode === "timed") {
+		specialText = "=> More Time: +3 seconds"
+		mouseText = "+3 Seconds"
+		timer += 3000
+	} else if (mode === "score") {
+		specialText = "=> Save Time: -3 seconds"
+		mouseText = "-3 Seconds"
+		stopwatch += 3000
+	}
+
 	mouseColor = [200, 200, 200]
 	sfx["time"].play()
-	timer += 3000
+}
+
+function resetScore() {
+	presentList = [...Object.keys(presents), ...Object.keys(powerUps)]
+	stopwatch = new Date().getTime()
+	mode = "score"
+	menu = "game"
+	presentArr = []
+	stopwatchArr = []
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	randomPresent(true)
+}
+
+function handleStopwatch() {
+	push()
+	textSize(50)
+	strokeWeight(3)
+	stroke("grey")
+	text(Math.floor((currentTime - stopwatch)/1000), windowWidth/2, 100)
+	pop()
+}
+
+function scoreMode() {
+	if (charm < 25000) {
+		if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
+		rect(windowWidth - 75, 35, 130, 50)
+		handleStopwatch()
+		handlePowerUps()
+		handlePresents()
+		comboHandler()
+		handleMouseText()
+	} else {
+		menu = "gOver"
+		stopwatchArr.push(Math.floor((currentTime - stopwatch)/1000))
+		handleGOverUI(`Time: ${stopwatchArr[0]}`, "grey")
+	}
+}
+
+function resetZen() {
+	presentList = [...Object.keys(presents), "slowMo", "combo", "boost"]
+	mode = "zen"
+	menu = "game"
+	presentArr = []
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	randomPresent(true)
+}
+
+function zenMode() {
+	if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
+	rect(windowWidth - 75, 35, 130, 50)
+	handlePowerUps()
+	handlePresents()
+	comboHandler()
+	handleMouseText()
+}
+
+function resetChaos() {
+	presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb"]
+	mode = "chaos"
+	menu = "game"
+	presentArr = []
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	randomPresent(true)
+}
+
+function chaosMode() {
+	if (!Math.floor(Math.random() * 100)) {randomPresent(true)}
+	rect(windowWidth - 75, 35, 130, 50)
+	handlePowerUps()
+	handlePresents()
+	comboHandler()
+	handleMouseText()
 }
 
 function comboHandler() {
@@ -351,7 +458,7 @@ function randomPresent(cycle) {
 	let xVelo = Math.floor(Math.random() * 10) * (xPos < windowWidth/2 && -1 || 1)
 	let yVelo = -veloArr.indexOf(choice(veloArr.filter(v => v < windowHeight && v > windowHeight*0.6)))
 	let rot = Math.floor(Math.random() * 10) * choice([1, -1])
-	let skin = choice([...Object.keys(presents), ...Object.keys(powerUps)]) 
+	let skin = choice(presentList) 
 	presentArr.push(new Present(xPos, yPos, xVelo, yVelo, rot, skin, cycle))
 }
 
@@ -414,32 +521,37 @@ function handleMouseText() {
 	}
 }
 
-function handleGOverUI() {
+function handleGOverUI(txt, col) {
 	push()
 	textSize(50)
 	strokeWeight(3)
-	stroke("pink")
-	text(`Charm: ${charm}`, windowWidth/2, windowHeight/2 - 75)
+	stroke(col)
+	text(txt, windowWidth/2, windowHeight/2 - 75)
 	pop()
 	rect(windowWidth/2, windowHeight/2, 250, 50, 10)
 	rect(windowWidth/2, windowHeight/2 + 75, 250, 50, 10)
 }
 
-function keyPressed() {if (key == "l") {ldm = !ldm}}
+function keyPressed() {
+	if (key === "l") {ldm = !ldm}
+	else if (keyCode === ESCAPE && menu === "game") {mode = "main"; menu = "main"}
+}
 
 function mousePressed() {
 	switch (menu) {
 		case "game":
-			//rect(windowWidth - 75, 35, 125, 50)
-
+			if (mouseFullBounds(-140, -10, 10, 60)) {
+				menu = "main"; mode = "main"
+			}
 			break;
 		case "gOver":
-			if (mouseBounds(-125, 125, -25, 25)) {
+			if (mouseHalfBounds(-125, 125, -25, 25)) {
 				switch (mode) {
 					case "timed": resetTimed(); break;
+					case "score": resetScore(); break;
+					case "survival": break;
 				}
-			}
-			else if (mouseBounds(-125, 125, 75, 100)) {menu = "main"; mode = "main"}
+			} else if (mouseHalfBounds(-125, 125, 75, 100)) {menu = "main"; mode = "main"}
 			break;
 	}
 }
@@ -451,6 +563,10 @@ function draw() {
 
 	switch (mode) {
 		case "timed": timedMode(); break;
+		case "zen" : zenMode(); break;
+		case "chaos": chaosMode(); break;
+		case "score": scoreMode(); break;
+		case "survival": break;
 	}
 	trail(mouseX, mouseY, 20);
 }
