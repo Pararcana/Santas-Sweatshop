@@ -3,6 +3,8 @@ let trailArr = [];
 let presentArr = [];
 let ldm = false
 let mode = "timed"
+let menu = "game"
+let again
 
 let slowMo = 0
 let boost = 0
@@ -16,6 +18,7 @@ let specialTimer = 0
 let mouseText = ""
 let mouseTimer = 0
 let mouseColor = [0, 0, 0]
+let timer = 0
 
 let charm = 0
 let honour = 0
@@ -28,6 +31,50 @@ for (let i = 0; i < 1000; i++) {
 function choice(arr) {
 	let index = Math.floor(Math.random() * arr.length);
 	return arr[index];
+}
+
+function resetTimed() {
+	mode = "timed"
+	menu = "game"
+	presentArr = []
+	timer = new Date().getTime() + 60000
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	randomPresent(true)
+}
+
+function mouseBounds(xLB, xUB, yLB, yUB) {
+	let xBounds = windowWidth/2 + xLB <= mouseX && mouseX <= windowWidth/2 + xUB
+	let yBounds = windowHeight/2 + yLB <= mouseY && mouseY <= windowHeight/2 + yUB
+	return xBounds && yBounds
+}
+
+function handleTimer() {
+	push()
+	textSize(50)
+	strokeWeight(3)
+	stroke(((timer - currentTime)/1000 >= 6) && "grey" || "red")
+	text(Math.floor((timer - currentTime)/1000), windowWidth/2, 100)
+	pop()
+}
+
+function timedMode() {
+	if (currentTime <= timer) {
+		if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
+		rect(windowWidth - 75, 35, 125, 50)
+		handleTimer()
+		handlePowerUps()
+		handlePresents()
+		comboHandler()
+		handleMouseText()
+	} else {
+		menu = "gOver"
+		handleGOverUI()
+	}
 }
 
 function startSlowMo() {
@@ -48,18 +95,19 @@ function startCombo() {
 }
 
 function addTime() {
-	specialText = "=> More Time: +5 seconds"
-	mouseText = "+5 Seconds"
+	specialText = "=> More Time: +3 seconds"
+	mouseText = "+3 Seconds"
 	mouseColor = [200, 200, 200]
 	sfx["time"].play()
+	timer += 3000
 }
 
 function explosion() {
-	specialText = "=> Bomb Exploded: -1000 Charm"
-	mouseText = "-1000 Charm"
+	specialText = "=> Bomb Exploded: -2500 Charm"
+	mouseText = "-2500 Charm"
 	mouseColor = [255, 0, 0]
 	sfx["boom"].play()
-	charm -= 1000
+	charm -= 2500
 }
 
 function startBoost() {
@@ -73,14 +121,14 @@ function startBoost() {
 
 let yVelo = -50
 
-function randomPresent() {
+function randomPresent(cycle) {
 	let xPos = Math.floor(Math.random() * windowWidth)
 	let yPos = windowHeight + 25
 	let xVelo = Math.floor(Math.random() * 10) * (xPos < windowWidth/2 && -1 || 1)
 	let yVelo = -veloArr.indexOf(choice(veloArr.filter(v => v < windowHeight && v > windowHeight*0.6)))
 	let rot = Math.floor(Math.random() * 10) * choice([1, -1])
 	let skin = choice([...Object.keys(presents), ...Object.keys(powerUps)]) 
-	presentArr.push(new Present(xPos, yPos, xVelo, yVelo, rot, skin))
+	presentArr.push(new Present(xPos, yPos, xVelo, yVelo, rot, skin, cycle))
 }
 
 function trail(x, y, size) {
@@ -187,6 +235,17 @@ function handleMouseText() {
 	}
 }
 
+function handleGOverUI() {
+	push()
+	textSize(50)
+	strokeWeight(3)
+	stroke("pink")
+	text(`Charm: ${charm}`, windowWidth/2, windowHeight/2 - 75)
+	pop()
+	rect(windowWidth/2, windowHeight/2, 250, 50, 10)
+	rect(windowWidth/2, windowHeight/2 + 75, 250, 50, 10)
+}
+
 function slicingCollision(x, y) {
 	let smallX = Math.min(mouseX, trailArr[trailArr.length - 1].x) - 50
 	let bigX = Math.max(mouseX, trailArr[trailArr.length - 1].x) + 50
@@ -230,7 +289,7 @@ class Snowflake {
 }
 
 class Present {
-	constructor(x, y, velocityX, velocityY, rotSpeed, skin) {
+	constructor(x, y, velocityX, velocityY, rotSpeed, skin, cycle) {
 		this.Id = presentId
 		this.x = x
 		this.y = y
@@ -242,6 +301,7 @@ class Present {
 		this.rotSpeed = rotSpeed
 		this.gravity = 0.75
 		this.isPowerUp = Object.keys(powerUps).includes(skin)
+		this.cycle = cycle
 		presentId++
 	}
 	
@@ -292,14 +352,24 @@ class Present {
 			}
 		} else {
 			presentArr = presentArr.filter(v => v.Id !== this.Id)
-			randomPresent()
+			if (this.cycle) {randomPresent(this.cycle)}
 		}
 	}
 }
 
-function keyPressed() {
-	switch (key) {
-		case "l": ldm = !ldm; break;
+function keyPressed() {if (key == "l") {ldm = !ldm}}
+
+function mousePressed() {
+	switch (menu) {
+		case "game": break;
+		case "gOver":
+			if (mouseBounds(-125, 125, -25, 25)) {
+				switch (mode) {
+					case "timed": resetTimed(); break;
+				}
+			}
+			else if (mouseBounds(-125, 125, 75, 100)) {menu = "main"; mode = "main"}
+			break;
 	}
 }
 
@@ -365,24 +435,22 @@ function setup() {
 	randomPresent()
 	trailArr.push(new Snowflake())
 	background(100);
-	textFont('Courier New')
+	textFont("Courier New")
 	angleMode(DEGREES)
 	rectMode(CENTER)
 	imageMode(CENTER)
 	textAlign(CENTER)
-	// songs["xmas"].loop()
+	resetTimed()
+	//songs["xmas"].loop()
 }
 
 function draw() {
 	currentTime = new Date().getTime()
 	createCanvas(windowWidth, windowHeight);
-	trail(mouseX, mouseY, 20);
 	textSize(25)
 
-	if (mode === "timed") {
-		handlePowerUps()
-		handlePresents()
-		comboHandler()
-		handleMouseText()
+	switch (mode) {
+		case "timed": timedMode(); break;
 	}
+	trail(mouseX, mouseY, 20);
 }
