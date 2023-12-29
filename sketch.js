@@ -267,6 +267,34 @@ function initiateMenu() {
 
 function mainMenu() {
 	image(buttons["logo"], windowWidth/2, windowHeight/2 - 150)
+	rect(windowWidth/2, windowHeight/2, 400, 100)
+	rect(windowWidth/2, windowHeight/2 + 110, 400, 60)
+	handlePresents()
+}
+
+function initiateModes() {
+	mode = "modes"
+	menu = "modes"
+	presentArr = []
+	presentList = [...Object.keys(presents)]
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	randomPresent(true)
+	randomPresent(true)
+	randomPresent(true)
+}
+
+function modesMenu() {
+	image(buttons["back"], windowWidth - 75, 35)
+	rect(windowWidth/2, windowHeight/2 - 200, 400, 60)
+	rect(windowWidth/2, windowHeight/2 - 100, 400, 60)
+	rect(windowWidth/2, windowHeight/2, 400, 60)
+	rect(windowWidth/2, windowHeight/2 + 100, 400, 60)
+	rect(windowWidth/2, windowHeight/2 + 200, 400, 60)
 	handlePresents()
 }
 
@@ -618,11 +646,23 @@ function handleGOverUI(txt, col) {
 
 function keyPressed() {
 	if (key === "l") {ldm = !ldm}
-	else if (keyCode === ESCAPE && menu === "game") {mode = "main"; menu = "main"}
+	else if (keyCode === ESCAPE && menu === "game") {initiateMenu()}
 }
 
 function mousePressed() {
 	switch (menu) {
+		case "main":
+			if (mouseHalfBounds(-200, 200, -50, 50)) {sfx["boom"].play()}
+			else if (mouseHalfBounds(-200, 200, 80, 140)) {initiateModes()}
+			break;
+		case "modes":
+			if (mouseFullBounds(-140, -10, 10, 60)) {initiateMenu()}
+			else if (mouseHalfBounds(-200, 200, -230, -170)) {resetZen()}
+			else if (mouseHalfBounds(-200, 200, -130, -70)) {resetScore()}
+			else if (mouseHalfBounds(-200, 200, -30, 30)) {resetTimed()}
+			else if (mouseHalfBounds(-200, 200, 70, 130)) {resetSurvival()}
+			else if (mouseHalfBounds(-200, 200, 170, 230)) {resetChaos()}
+			break;
 		case "game":
 			if (mouseFullBounds(-140, -10, 10, 60)) {initiateMenu()}
 			break;
@@ -632,6 +672,7 @@ function mousePressed() {
 					case "timed": resetTimed(); break;
 					case "score": resetScore(); break;
 					case "survival": resetSurvival(); break;
+					default: initiateMenu(); break;
 				}
 			} else if (mouseHalfBounds(-125, 125, 50, 100)) {initiateMenu()}
 			break;
@@ -651,5 +692,6 @@ function draw() {
 		case "score": scoreMode(); break;
 		case "survival": survivalMode(); break;
 		case "main": mainMenu(); break;
+		case "modes": modesMenu(); break;
 	} trail(mouseX, mouseY, 20);
 }
