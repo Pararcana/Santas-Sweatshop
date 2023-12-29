@@ -79,6 +79,7 @@ function preload() {
 		"menu": loadImage("Buttons/menu.png"),
 		"logo": loadImage("Buttons/logo.png"),
 		"background": loadImage("Buttons/background.png"),
+		"story": loadImage("Buttons/story.png"),
 		"gamemodes": loadImage("Buttons/gamemodes.png"),
 		"zen": loadImage("Buttons/zen.png"),
 		"blitz": loadImage("Buttons/blitz.png"),
@@ -267,7 +268,7 @@ function initiateMenu() {
 
 function mainMenu() {
 	image(buttons["logo"], windowWidth/2, windowHeight/2 - 150)
-	rect(windowWidth/2, windowHeight/2, 400, 100)
+	image(buttons["story"], windowWidth/2, windowHeight/2)
 	image(buttons["gamemodes"], windowWidth/2, windowHeight/2 + 110)
 	handlePresents()
 }
