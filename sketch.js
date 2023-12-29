@@ -77,7 +77,8 @@ function preload() {
 		"back": loadImage("Buttons/back.png"),
 		"again": loadImage("Buttons/again.png"),
 		"menu": loadImage("Buttons/menu.png"),
-		"logo": loadImage("Buttons/logo.png")
+		"logo": loadImage("Buttons/logo.png"),
+		"background": loadImage("Buttons/background.png")
 	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
@@ -97,7 +98,6 @@ function preload() {
 
 function setup() {
 	trailArr.push(new Snowflake())
-	background(100);
 	textFont("Courier New")
 	angleMode(DEGREES)
 	rectMode(CENTER)
@@ -240,6 +240,13 @@ class Present {
 			if (this.cycle) {randomPresent(this.cycle)}
 		}
 	}
+}
+
+function drawBackground() {
+	push()
+	noSmooth()
+	image(buttons["background"], windowWidth/2, windowHeight/2, windowWidth, buttons["background"].height * windowWidth/buttons["background"].width)
+	pop()
 }
 
 function initiateMenu() {
@@ -617,9 +624,7 @@ function keyPressed() {
 function mousePressed() {
 	switch (menu) {
 		case "game":
-			if (mouseFullBounds(-140, -10, 10, 60)) {
-				initiateMenu()
-			}
+			if (mouseFullBounds(-140, -10, 10, 60)) {initiateMenu()}
 			break;
 		case "gOver":
 			if (mouseHalfBounds(-125, 125, -25, 25)) {
@@ -628,7 +633,7 @@ function mousePressed() {
 					case "score": resetScore(); break;
 					case "survival": resetSurvival(); break;
 				}
-			} else if (mouseHalfBounds(-125, 125, 75, 100)) {initiateMenu()}
+			} else if (mouseHalfBounds(-125, 125, 50, 100)) {initiateMenu()}
 			break;
 	}
 }
@@ -636,6 +641,7 @@ function mousePressed() {
 function draw() {
 	currentTime = new Date().getTime()
 	createCanvas(windowWidth, windowHeight);
+	drawBackground()
 	textSize(25)
 
 	switch (mode) {
@@ -645,6 +651,5 @@ function draw() {
 		case "score": scoreMode(); break;
 		case "survival": survivalMode(); break;
 		case "main": mainMenu(); break;
-	}
-	trail(mouseX, mouseY, 20);
+	} trail(mouseX, mouseY, 20);
 }
