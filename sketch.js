@@ -78,7 +78,13 @@ function preload() {
 		"again": loadImage("Buttons/again.png"),
 		"menu": loadImage("Buttons/menu.png"),
 		"logo": loadImage("Buttons/logo.png"),
-		"background": loadImage("Buttons/background.png")
+		"background": loadImage("Buttons/background.png"),
+		"gamemodes": loadImage("Buttons/gamemodes.png"),
+		"zen": loadImage("Buttons/zen.png"),
+		"blitz": loadImage("Buttons/blitz.png"),
+		"minute": loadImage("Buttons/minute.png"),
+		"survival": loadImage("Buttons/survival.png"),
+		"chaos": loadImage("Buttons/chaos.png")
 	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
@@ -263,7 +269,7 @@ function initiateMenu() {
 function mainMenu() {
 	image(buttons["logo"], windowWidth/2, windowHeight/2 - 150)
 	rect(windowWidth/2, windowHeight/2, 400, 100)
-	rect(windowWidth/2, windowHeight/2 + 110, 400, 60)
+	image(buttons["gamemodes"], windowWidth/2, windowHeight/2 + 110)
 	handlePresents()
 }
 
@@ -285,11 +291,11 @@ function initiateModes() {
 
 function modesMenu() {
 	image(buttons["back"], windowWidth - 75, 35)
-	rect(windowWidth/2, windowHeight/2 - 200, 400, 60)
-	rect(windowWidth/2, windowHeight/2 - 100, 400, 60)
-	rect(windowWidth/2, windowHeight/2, 400, 60)
-	rect(windowWidth/2, windowHeight/2 + 100, 400, 60)
-	rect(windowWidth/2, windowHeight/2 + 200, 400, 60)
+	image(buttons["zen"], windowWidth/2, windowHeight/2 - 200)
+	image(buttons["blitz"], windowWidth/2, windowHeight/2 - 100)
+	image(buttons["minute"], windowWidth/2, windowHeight/2)
+	image(buttons["survival"], windowWidth/2, windowHeight/2 + 100)
+	image(buttons["chaos"], windowWidth/2, windowHeight/2 + 200)
 	handlePresents()
 	push()
 	textAlign(LEFT)
@@ -312,7 +318,7 @@ function modesMenu() {
 	} else if (mouseHalfBounds(-200, 200, -30, 30)) {
 		rect(mouseX, mouseY, 200, 100, 10)
 		textSize(15.5)
-		let txt = "Minute Madness:     One minute.      Maximum score.    What could go wrong?"
+		let txt = "Minute Hell:        One minute.      Maximum score.    What could go wrong?"
 		stroke("navy")
 		fill("black")
 		text(txt, mouseX + 7, mouseY + 12, 200, 100)
