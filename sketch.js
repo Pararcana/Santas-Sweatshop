@@ -22,6 +22,14 @@ let timer = 0
 let stopwatch = 0
 let stopwatchArr = []
 let lives = 0
+let explosionTimer = 0
+
+let zenBest = 0
+let blitzBest = 9999
+let timedBest = -1
+let survivalBest = -1
+let chaosBest = 0
+let chaosPresents = 1
 
 let charm = 0
 let honour = 0
@@ -87,6 +95,10 @@ function preload() {
 		"survival": loadImage("Buttons/survival.png"),
 		"chaos": loadImage("Buttons/chaos.png")
 	}
+	story = {
+		"elf": loadImage("Story/elf.png"),
+		"cut": loadImage("Story/cut.png")
+	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
 		"rip1": loadSound("SFX/rip1.mp3"),
@@ -96,7 +108,8 @@ function preload() {
 		"rage": loadSound("SFX/rage.mp3"),
 		"time": loadSound("SFX/time.mp3"),
 		"boom": loadSound("SFX/boom.mp3"),
-		"squelch": loadSound("SFX/squelch.mp3")
+		"squelch": loadSound("SFX/squelch.mp3"),
+		"click": loadSound("SFX/click.mp3")
 	}
 	songs = {
 		"xmas": loadSound("Songs/It's Christmas!.mp3")
@@ -111,7 +124,11 @@ function setup() {
 	imageMode(CENTER)
 	textAlign(CENTER)
 
-	initiateMenu()
+	presentList = Object.keys(presents)
+	randomPresent(true)
+	randomPresent(true)
+	randomPresent(true)
+
 	//songs["xmas"].loop()
 }
 
@@ -243,14 +260,8 @@ class Present {
 	}
 }
 
-function drawBackground() {
-	push()
-	noSmooth()
-	image(buttons["background"], windowWidth/2, windowHeight/2, windowWidth, buttons["background"].height * windowWidth/buttons["background"].width)
-	pop()
-}
-
 function initiateMenu() {
+	sfx["click"].play()
 	mode = "main"
 	menu = "main"
 	presentArr = []
@@ -271,9 +282,12 @@ function mainMenu() {
 	image(buttons["story"], windowWidth/2, windowHeight/2)
 	image(buttons["gamemodes"], windowWidth/2, windowHeight/2 + 110)
 	handlePresents()
+	comboHandler()
+	handleMouseText()
 }
 
 function initiateModes() {
+	sfx["click"].play()
 	mode = "modes"
 	menu = "modes"
 	presentArr = []
@@ -297,50 +311,117 @@ function modesMenu() {
 	image(buttons["survival"], windowWidth/2, windowHeight/2 + 100)
 	image(buttons["chaos"], windowWidth/2, windowHeight/2 + 200)
 	handlePresents()
+	comboHandler()
+	handleMouseText()
 	push()
 	textAlign(LEFT)
 	rectMode(CORNER)
 	fill(185, 229, 237)
 	if (mouseHalfBounds(-200, 200, -230, -170)) {
 		rect(mouseX, mouseY, 200, 100, 10)
+		rect(mouseX, mouseY - 25, 200, 25, 10)
 		textSize(17)
 		let txt = "Zen; a stress-free gamemode with no bombs or time constraints."
 		stroke("navy")
 		fill("black")
 		text(txt, mouseX + 7, mouseY + 7, 200, 100)
+		text(`Charm: ${zenBest}`, mouseX + 7, mouseY - 20, 200, 100)
 	} else if (mouseHalfBounds(-200, 200, -130, -70)) {
 		rect(mouseX, mouseY, 200, 100, 10)
+		rect(mouseX, mouseY - 25, 200, 25, 10)
 		textSize(16)
 		let txt = "Blitz; a sprint to aquire 25,000 charm in the fastest time possible."
 		stroke("navy")
 		fill("black")
 		text(txt, mouseX + 7, mouseY + 10, 200, 100)
+		if (blitzBest === 9999) {
+			text(`PB: N/A`, mouseX + 7, mouseY - 20, 200, 100)
+		} else {
+			text(`PB: ${blitzBest} Seconds`, mouseX + 7, mouseY - 20, 200, 100)
+		}
 	} else if (mouseHalfBounds(-200, 200, -30, 30)) {
 		rect(mouseX, mouseY, 200, 100, 10)
+		rect(mouseX, mouseY - 25, 200, 25, 10)
 		textSize(15.5)
 		let txt = "Minute Hell:        One minute.      Maximum score.    What could go wrong?"
 		stroke("navy")
 		fill("black")
 		text(txt, mouseX + 7, mouseY + 12, 200, 100)
+		if (timedBest === -1) {
+			text(`PB: N/A`, mouseX + 7, mouseY - 20, 200, 100)
+		} else {
+			text(`PB: ${timedBest} Charm`, mouseX + 7, mouseY - 20, 200, 100)
+		}
 	} else if (mouseHalfBounds(-200, 200, 70, 130)) {
 		rect(mouseX, mouseY, 200, 100, 10)
+		rect(mouseX, mouseY - 25, 200, 25, 10)
 		textSize(16)
 		let txt = "Survival; bombs kill and spawn more frequently. Try not to die!"
 		stroke("navy")
 		fill("black")
 		text(txt, mouseX + 7, mouseY + 12, 200, 100)
+		if (survivalBest === -1) {
+			text(`PB: N/A`, mouseX + 7, mouseY - 20, 200, 100)
+		} else {
+			text(`PB: ${survivalBest} Charm`, mouseX + 7, mouseY - 20, 200, 100)
+		}
 	} else if (mouseHalfBounds(-200, 200, 170, 230)) {
 		rect(mouseX, mouseY, 200, 100, 10)
+		rect(mouseX, mouseY - 25, 200, 25, 10)
 		textSize(15)
 		let txt = "Chaos; 'Oh, that's not too bad, where's the chaos?... WHAT THE FU-' ['L' -> LDM]"
 		stroke("navy")
 		fill("black")
 		text(txt, mouseX + 7, mouseY + 12, 200, 100)
+		text(`Charm: ${chaosBest}`, mouseX + 7, mouseY - 20, 200, 100)
 	}
 	pop()
 }
 
+function initiateStory() {
+	sfx["click"].play()
+	mode = "story"
+	menu = "story"
+	presentArr = []
+	presentList = [...Object.keys(presents), ...Object.keys(powerUps)]
+	charm = 0
+	comboCounter = 0
+	slowMo = 0
+	boost = 0
+	combo = 0
+	presentValue = 100
+	startStory = currentTime
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+function slideShow(txt, img) {
+	push()
+	fill(0)
+	strokeWeight(5)
+	stroke(0)
+	rect(windowWidth/2, windowHeight/2, windowWidth*2, windowHeight*2)
+	image(story[img], windowWidth/2, windowHeight/2, 128 * windowHeight/128, windowHeight)
+	fill(255)
+	text(txt, windowWidth/2, windowHeight - 100, windowWidth*0.75)
+	pop()
+}
+
+
+function storyMode() {
+	if (currentTime <= startStory + 4000) {
+		let txt = "You are an elf, and have recently been promoted to the head of sorting!"
+		slideShow(txt, "elf")
+	} else if (currentTime <= startStory + 8000) {
+		let txt = "Your job is to make sure the naughty children do not recieve presents."
+		slideShow(txt, "cut")
+	} else {
+		menu = "main"
+		mode = "main"
+	}
+}
+
 function resetTimed() {
+	sfx["click"].play()
 	mode = "timed"
 	menu = "game"
 	presentArr = []
@@ -375,6 +456,7 @@ function timedMode() {
 		handleMouseText()
 	} else {
 		menu = "gOver"
+		timedBest = Math.max(timedBest, charm)
 		handleGOverUI(`Charm: ${charm}`, "pink")
 	}
 }
@@ -395,6 +477,7 @@ function addTime() {
 }
 
 function resetScore() {
+	sfx["click"].play()
 	presentList = [...Object.keys(presents), ...Object.keys(powerUps)]
 	stopwatch = new Date().getTime()
 	mode = "score"
@@ -432,10 +515,12 @@ function scoreMode() {
 		menu = "gOver"
 		stopwatchArr.push(Math.floor((currentTime - stopwatch)/1000))
 		handleGOverUI(`Time: ${stopwatchArr[0]}`, "grey")
+		blitzBest = Math.min(stopwatchArr[0], blitzBest)
 	}
 }
 
 function resetSurvival() {
+	sfx["click"].play()
 	presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb", "bomb", "bomb"]
 	lives = 3
 	mode = "survival"
@@ -472,15 +557,17 @@ function survivalMode() {
 	} else {
 		menu = "gOver"
 		handleGOverUI(`Charm: ${charm}`, "pink")
+		survivalBest = Math.max(survivalBest, charm)
 	}
 }
 
 function resetZen() {
+	sfx["click"].play()
 	presentList = [...Object.keys(presents), "slowMo", "combo", "boost"]
 	mode = "zen"
 	menu = "game"
 	presentArr = []
-	charm = 0
+	charm = zenBest
 	comboCounter = 0
 	slowMo = 0
 	boost = 0
@@ -496,29 +583,34 @@ function zenMode() {
 	handlePresents()
 	comboHandler()
 	handleMouseText()
+	zenBest = charm
 }
 
 function resetChaos() {
+	sfx["click"].play()
 	presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb"]
 	mode = "chaos"
 	menu = "game"
 	presentArr = []
-	charm = 0
+	charm = chaosBest
 	comboCounter = 0
 	slowMo = 0
 	boost = 0
 	combo = 0
 	presentValue = 100
-	randomPresent(true)
+	for (i = 0; i < chaosPresents; i++) {
+		randomPresent(true)
+	}
 }
 
 function chaosMode() {
-	if (!Math.floor(Math.random() * 100)) {randomPresent(true)}
+	if (!Math.floor(Math.random() * 100)) {randomPresent(true); chaosPresents++}
 	image(buttons["back"], windowWidth - 75, 35)
 	handlePowerUps()
 	handlePresents()
 	comboHandler()
 	handleMouseText()
+	chaosBest = charm
 }
 
 function comboHandler() {
@@ -594,7 +686,14 @@ function explosion() {
 		mouseText = "-2500 Charm"
 	}
 	mouseColor = [255, 0, 0]
+	explosionTimer = currentTime + 750
 	sfx["boom"].play()
+}
+
+function screenShake() {
+	if (currentTime <= explosionTimer) {
+		translate(Math.random() * 5 * choice([-1, 1]), Math.random() * 5 * choice([-1, 1]))
+	}
 }
 
 function startBoost() {
@@ -651,7 +750,7 @@ function handlePowerUps() {
 	if (currentTime <= slowMo) {
 		push()
 		fill(3, 252, 248, 50)
-		rect(windowWidth/2, windowHeight/2, windowWidth, windowHeight)
+		rect(windowWidth/2, windowHeight/2, windowWidth * 2, windowHeight * 2)
 		pop()
 	}
 	drawPowerUpBar(25, 55, [3, 252, 248], [66, 135, 245], slowMo, "slowMo")
@@ -665,10 +764,12 @@ function handleMouseText() {
 	push()
 	textAlign(LEFT)
 	stroke("pink")
-	if (mode === "score") {
-		text(`Charm: ${charm}/25000 ${specialText}`, 25, 35)
-	} else {
-		text(`Charm: ${charm} ${specialText}`, 25, 35)
+	if (!["main", "modes"].includes(mode)) {
+		if (mode === "score") {
+			text(`Charm: ${charm}/25000 ${specialText}`, 25, 35)
+		} else {
+			text(`Charm: ${charm} ${specialText}`, 25, 35)
+		}
 	}
 	pop()
 	if (currentTime <= mouseTimer) {
@@ -699,7 +800,7 @@ function keyPressed() {
 function mousePressed() {
 	switch (menu) {
 		case "main":
-			if (mouseHalfBounds(-200, 200, -50, 50)) {sfx["boom"].play()}
+			if (mouseHalfBounds(-200, 200, -50, 50)) {initiateStory()}
 			else if (mouseHalfBounds(-200, 200, 80, 140)) {initiateModes()}
 			break;
 		case "modes":
@@ -728,8 +829,10 @@ function mousePressed() {
 
 function draw() {
 	currentTime = new Date().getTime()
-	createCanvas(windowWidth, windowHeight);
-	drawBackground()
+	createCanvas(windowWidth, windowHeight)
+	noSmooth()
+	image(buttons["background"], windowWidth/2, windowHeight/2, windowWidth, 128 * windowWidth/128)
+	screenShake()
 	textSize(25)
 
 	switch (mode) {
@@ -740,5 +843,6 @@ function draw() {
 		case "survival": survivalMode(); break;
 		case "main": mainMenu(); break;
 		case "modes": modesMenu(); break;
+		case "story": storyMode(); break;
 	} trail(mouseX, mouseY, 20);
 }
