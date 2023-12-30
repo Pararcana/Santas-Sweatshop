@@ -103,7 +103,8 @@ function preload() {
 		"baphomelf": loadImage("Story/baphomelf.png"),
 		"group": loadImage("Story/group.png"),
 		"struck": loadImage("Story/struck.png"),
-		"birmingham": loadImage("Story/birmingham.png")
+		"birmingham": loadImage("Story/birmingham.png"),
+		"20": loadImage("Story/20.png")
 	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
@@ -420,24 +421,27 @@ function storyMode() {
 	} else if (currentTime <= startStory + 8000) {
 		let txt = "Your job is to make sure that the naughty children do not recieve presents."
 		slideShow(txt, "cut")
-	} else if (currentTime <= startStory + 12000) {
+	} else if (currentTime <= startStory + 13000) {
 		let txt = "Conveniently, naughty presents are sorted by colour. (List will be on top-right of screen.)"
 		slideShow(txt, "list")
-	} else if (currentTime <= startStory + 16000) {
+	} else if (currentTime <= startStory + 18000) {
 		let txt = "All presents also contain a certain amount of 'charm', which contain magical powers, and are said to make an elf stronger and more cherubic."
 		slideShow(txt, "charm")
-	} else if (currentTime <= startStory + 20000) {
+	} else if (currentTime <= startStory + 22000) {
 		let txt = "Baphomelf, your predecessor, was power hungry, and acquired all the charm he could. He very nearly destroyed Christmas."
 		slideShow(txt, "baphomelf")
-	} else if (currentTime <= startStory + 24000) {
+	} else if (currentTime <= startStory + 28000) {
 		let txt = "He amassed a group of like-minded elves, who were tired of working in the freezing cold, and orchestrated a rebellion against Santa."
 		slideShow(txt, "group")
-	} else if (currentTime <= startStory + 28000) {
+	} else if (currentTime <= startStory + 32000) {
 		let txt = "Baphomelf and his allies eventually lost the war, and were struck down by Santa."
 		slideShow(txt, "struck")
-	} else if (currentTime <= startStory + 32000) {
+	} else if (currentTime <= startStory + 37000) {
 		let txt = "For the crime of rebellion, they suffered a fate worse than death... They were exiled to Birmingham for eternity."
 		slideShow(txt, "birmingham")
+	} else if (currentTime <= startStory + 41000) {
+		let txt = "Anyways, it's the first day of your job. Just cut the 'naughty' gifts. 5 Days until Christmas."
+		slideShow(txt, "20")
 	} else {
 		initiateMenu()
 	}
