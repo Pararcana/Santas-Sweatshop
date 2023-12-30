@@ -97,7 +97,13 @@ function preload() {
 	}
 	story = {
 		"elf": loadImage("Story/elf.png"),
-		"cut": loadImage("Story/cut.png")
+		"cut": loadImage("Story/cut.png"),
+		"list": loadImage("Story/list.png"),
+		"charm": loadImage("Story/charm.png"),
+		"baphomelf": loadImage("Story/baphomelf.png"),
+		"group": loadImage("Story/group.png"),
+		"struck": loadImage("Story/struck.png"),
+		"birmingham": loadImage("Story/birmingham.png")
 	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
@@ -330,7 +336,7 @@ function modesMenu() {
 		rect(mouseX, mouseY, 200, 100, 10)
 		rect(mouseX, mouseY - 25, 200, 25, 10)
 		textSize(16)
-		let txt = "Blitz; a sprint to aquire 25,000 charm in the fastest time possible."
+		let txt = "Blitz; a sprint to acquire 25,000 charm in the fastest time possible."
 		stroke("navy")
 		fill("black")
 		text(txt, mouseX + 7, mouseY + 10, 200, 100)
@@ -412,11 +418,28 @@ function storyMode() {
 		let txt = "You are an elf, and have recently been promoted to the head of sorting!"
 		slideShow(txt, "elf")
 	} else if (currentTime <= startStory + 8000) {
-		let txt = "Your job is to make sure the naughty children do not recieve presents."
+		let txt = "Your job is to make sure that the naughty children do not recieve presents."
 		slideShow(txt, "cut")
+	} else if (currentTime <= startStory + 12000) {
+		let txt = "Conveniently, naughty presents are sorted by colour. (List will be on top-right of screen.)"
+		slideShow(txt, "list")
+	} else if (currentTime <= startStory + 16000) {
+		let txt = "All presents also contain a certain amount of 'charm', which contain magical powers, and are said to make an elf stronger and more cherubic."
+		slideShow(txt, "charm")
+	} else if (currentTime <= startStory + 20000) {
+		let txt = "Baphomelf, your predecessor, was power hungry, and acquired all the charm he could. He very nearly destroyed Christmas."
+		slideShow(txt, "baphomelf")
+	} else if (currentTime <= startStory + 24000) {
+		let txt = "He amassed a group of like-minded elves, who were tired of working in the freezing cold, and orchestrated a rebellion against Santa."
+		slideShow(txt, "group")
+	} else if (currentTime <= startStory + 28000) {
+		let txt = "Baphomelf and his allies eventually lost the war, and were struck down by Santa."
+		slideShow(txt, "struck")
+	} else if (currentTime <= startStory + 32000) {
+		let txt = "For the crime of rebellion, they suffered a fate worse than death... They were exiled to Birmingham for eternity."
+		slideShow(txt, "birmingham")
 	} else {
-		menu = "main"
-		mode = "main"
+		initiateMenu()
 	}
 }
 
