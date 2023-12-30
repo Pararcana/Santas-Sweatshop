@@ -12,6 +12,9 @@ let comboUI = [0]
 let comboCounter = 0
 let presentValue = 100
 let presentList = []
+let naughtyList = []
+let niceList = []
+let colours = ["red", "purple", "grey", "green", "blue"]
 
 let specialText = ""
 let specialTimer = 0
@@ -93,7 +96,8 @@ function preload() {
 		"blitz": loadImage("Buttons/blitz.png"),
 		"minute": loadImage("Buttons/minute.png"),
 		"survival": loadImage("Buttons/survival.png"),
-		"chaos": loadImage("Buttons/chaos.png")
+		"chaos": loadImage("Buttons/chaos.png"),
+		"list": loadImage("Buttons/list.png")
 	}
 	story = {
 		"elf": loadImage("Story/elf.png"),
@@ -243,10 +247,20 @@ class Present {
 				}
 			} else {
 				sfx[choice(["rip", "rip1", "rip2"])].play()
+				if (niceList.includes(this.skin.slice(0, -1)) && mode === "story") {
+					honour -= 10
+				}
 			}
 			comboCheck()
 		} else if (this.y >= windowHeight + 50) {
 			this.alive = false
+			if (mode === "story") {
+				if (niceList.includes(this.skin.slice(0, -1))) {
+					honour += 10
+				} else {
+					honour--
+				}
+			}
 		}
 		
 		if (this.alive) {
@@ -390,17 +404,20 @@ function initiateStory() {
 	mode = "story"
 	menu = "story"
 	presentArr = []
-	presentList = [...Object.keys(presents), ...Object.keys(powerUps)]
+	niceList = [choice(colours)]
+	naughtyList = colours.filter(v => !niceList.includes(v))
+	presentList = [...Object.keys(presents)]
 	charm = 0
 	comboCounter = 0
+	honour = 0
 	slowMo = 0
 	boost = 0
 	combo = 0
 	presentValue = 100
 	startStory = currentTime
+	timer = startStory + 73000
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
 function slideShow(txt, img) {
 	push()
 	fill(0)
@@ -413,6 +430,23 @@ function slideShow(txt, img) {
 	pop()
 }
 
+function handleList() {
+	push()
+	imageMode(CORNER)
+	rectMode(CORNER)
+	image(buttons["list"], windowWidth - 250, 0)
+	for (let i = 0; i < naughtyList.length; i++) {
+		let v = naughtyList[i]
+		fill(v)
+		rect(windowWidth - 210, i*60 + 75, 50, 50)
+	}
+	for (let i = 0; i < niceList.length; i++) {
+		let v = niceList[i]
+		fill(v)
+		rect(windowWidth - 90, i*60 + 75, 50, 50)
+	}
+	pop()
+}
 
 function storyMode() {
 	if (currentTime <= startStory + 4000) {
@@ -439,12 +473,22 @@ function storyMode() {
 	} else if (currentTime <= startStory + 37000) {
 		let txt = "For the crime of rebellion, they suffered a fate worse than death... They were exiled to Birmingham for eternity."
 		slideShow(txt, "birmingham")
-	} else if (currentTime <= startStory + 41000) {
-		let txt = "Anyways, it's the first day of your job. Just cut the 'naughty' gifts. 5 Days until Christmas."
+	} else if (currentTime <= startStory + 43000) {
+		let txt = "Anyways, it's the first day of your job. Just cut the 'naughty' gifts. Leave the 'nice' gifts. 5 Days until Christmas. Good Luck."
 		slideShow(txt, "20")
 	} else {
-		initiateMenu()
+		if (currentTime <= startStory + 73000) {
+			if (!Math.floor(Math.random() * 100)) {randomPresent(false)}
+			handleList()
+			handleTimer()
+			handlePresents()
+			handleMouseText()
+		} else {
+			initiateMenu()
+			//handleGOverUI(`Charm: ${charm}`, "pink")
+		}
 	}
+
 }
 
 function resetTimed() {
