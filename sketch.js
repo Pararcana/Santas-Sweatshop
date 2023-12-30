@@ -117,7 +117,15 @@ function preload() {
 		"group": loadImage("Story/group.png"),
 		"struck": loadImage("Story/struck.png"),
 		"birmingham": loadImage("Story/birmingham.png"),
-		"20": loadImage("Story/20.png")
+		"20": loadImage("Story/20.png"),
+		"21": loadImage("Story/21.png"),
+		"22": loadImage("Story/22.png"),
+		"23": loadImage("Story/23.png"),
+		"24": loadImage("Story/24.png"),
+		"25": loadImage("Story/25.png"),
+		"combo": loadImage("Story/combo.png"),
+		"powerups": loadImage("Story/powerups.png"),
+		"sad": loadImage("Story/sad.png")
 	}
 	sfx = {
 		"rip": loadSound("SFX/rip.mp3"),
@@ -149,7 +157,7 @@ function setup() {
 	randomPresent(true)
 	randomPresent(true)
 
-	//songs["xmas"].loop()
+	songs["xmas"].loop()
 }
 
 function choice(arr) {
@@ -473,7 +481,7 @@ function storyMode() { // day 1
 		let txt = "All presents also contain a certain amount of 'charm', which contain magical powers, and are said to make an elf stronger and more cherubic."
 		slideShow(txt, "charm")
 	} else if (currentTime <= startStory + 22000) {
-		let txt = "Baphomelf, your predecessor, was power hungry, and acquired all the charm he could. He very nearly destroyed Christmas."
+		let txt = "Baphomelf, your predecessor and the most charming elf of all, was power hungry, and acquired all the charm he could. He very nearly destroyed Christmas."
 		slideShow(txt, "baphomelf")
 	} else if (currentTime <= startStory + 28000) {
 		let txt = "He amassed a group of like-minded elves, who were tired of working in the freezing cold, and orchestrated a rebellion against Santa."
@@ -505,10 +513,10 @@ function storyMode() { // day 1
 				}
 			} else if (currentTime <= startStory + 86000) {
 				let txt = "Today, we will be introducing some powerups, which affect how the game is played. The ice cream slows down the game, and the melon increases the amount of charm you get per present."
-				slideShow(txt, "elf")
+				slideShow(txt, "powerups")
 			} else if (currentTime <= startStory + 90000) {
 				let txt = "And thus, begins your second day on the job. 4 Days until Christmas."
-				slideShow(txt, "20")
+				slideShow(txt, "21")
 				timer = startStory + 120000
 				presentList = [...Object.keys(presents), "slowMo", "boost"]
 				presentArr = []
@@ -537,11 +545,11 @@ function storyMode() { // day 1
 						} 
 					} else if (currentTime <= startStory + 135000) {
 						let txt = "This time, you'll learn about combos. Combos reward points based on how long it is. You start a combo by slashing presents in quick succession. The doughnut also offers a combo boost."		
-						slideShow(txt, "elf")
+						slideShow(txt, "combo")
 						savedCharm = charm
 					} else if (currentTime <= startStory + 143000) {
 						let txt = "Day 3; this time, the day ends afer you get 10,000 charm. Note that you only get alerted to a combo after it is broken."
-						slideShow(txt, "baphomelf")
+						slideShow(txt, "22")
 						stupidVariable = "score"
 						charm = 0
 						newTimer = 9999999999999999999999999999999
@@ -573,11 +581,19 @@ function storyMode() { // day 1
 								}
 							} else if (currentTime <= newTimer + 8000) {
 								let txt = "Now, to introduce bombs. Avoid these at all costs. (Don't ask why there are bombs, it is a sweatshop after all.)"
-								slideShow(txt, "elf")
+								push()
+								fill(0)
+								strokeWeight(5)
+								stroke(0)
+								rect(windowWidth/2, windowHeight/2, windowWidth*2, windowHeight*2)
+								image(powerUps["bomb"], windowWidth/2, windowHeight/2, 51 * windowHeight/51, windowHeight)
+								fill(255)
+								text(txt, windowWidth/2, windowHeight - 150, windowWidth*0.75)
+								pop()
 								savedCharm2 = charm + savedCharm
 							} else if (currentTime <= newTimer + 12000) {
 								let txt = "Day 4 - this day ends when you die..."
-								slideShow(txt, "20")
+								slideShow(txt, "23")
 								presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb", "bomb", "bomb"]
 								stupidVariable = "survival"
 								newTimer2 = 9999999999999999999999999999999
@@ -604,7 +620,7 @@ function storyMode() { // day 1
 									savedCharm = charm
 									} else if (currentTime <= newTimer2 + 8000) {
 										let txt = "Nothing new to introduce here. Get to 15,000 score. The last day until Christmas."
-										slideShow(txt, "20")
+										slideShow(txt, "24")
 										stupidVariable = "score1"
 										charm = 0
 										newTimer3 = 9999999999999999999999999999999
@@ -641,7 +657,7 @@ function storyMode() { // day 1
 												savedCharm2 = charm + savedCharm
 											} else if (currentTime <= newTimer3 + 12000) {
 												let txt = "It's Christmas. Final Day."
-												slideShow(txt, "20")
+												slideShow(txt, "25")
 												presentList = [...Object.keys(presents), "slowMo", "combo", "boost", "bomb", "bomb", "bomb"]
 												stupidVariable = "survival"
 												newTimer4 = 9999999999999999999999999999999
@@ -660,11 +676,21 @@ function storyMode() { // day 1
 													newTimer4 = Math.min(newTimer4, currentTime)
 													if (currentTime <= newTimer4 + 4000) {
 														if (honour >= 0) {
-															let txt = `You finished the game with ${charm} total charm. You continued being a subservient elf until your death.`
-															slideShow(txt, "charm")
+															if (charm >= 35000) {
+																let txt = `You finished the game with ${charm} total charm. You continued being a subservient elf until your death. [Ending 1/4]`
+																slideShow(txt, "elf")
+															} else {
+																let txt = `You finished the game with ${charm} total charm. You were ridiculed due to your low charm by other elves. [Ending 2/4]`
+																slideShow(txt, "sad")
+															}
 														} else {
-															let txt = `You finished the day with ${charm} total charm. You overthrew santa.`
-															slideShow(txt, "charm")
+															if (charm >= 75000) {
+																let txt = `You finished the game with ${charm} total charm. You overthrew Santa. [Ending 3/4]`
+																slideShow(txt, "baphomelf")
+															} else {
+																let txt = `You finished the game with ${charm} total charm. You tried to stage a rebellion, but failed. You were sentenced to BIRMINGHAM. [Ending 4/4]`
+																slideShow(txt, "birmingham")
+															}
 														} 
 													} else {
 														menu = "gOver"
