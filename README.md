@@ -1,5 +1,11 @@
 # Santa's Sweatshop
 
+You can play the game here:
+> https://pararcana.itch.io/santas-sweatshop
+
+I am also working on making an official companion website to the game:
+> https://codepen.io/Paracosm-Arcana/full/PoLPKde
+
 This was my submission for the "Winter Melon Jam 2023", with a theme of "charm"!
 
 Heavily inspired by Fruit Ninja, this game sees you working as an elf in Santa's Sweatshop. Your purpose is to sort gifts by colour in a variety of gamemodes.
