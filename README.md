@@ -1,7 +1,10 @@
 # Santa's Sweatshop
 
-You can play the game here:
+You can play the (updated) game here:
 > https://pararcana.itch.io/santas-sweatshop
+
+If you want, you can play the original jam release build here:
+> https://pararcana.itch.io/santas-sweatshop-original
 
 I am also working on making an official companion website to the game:
 > https://codepen.io/Paracosm-Arcana/full/PoLPKde
